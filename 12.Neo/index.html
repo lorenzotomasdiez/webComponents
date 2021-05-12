@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <neo-personaje  id="20" name="algo" ></neo-personaje>
+
+    <script>
+        const t = document.createElement('template');
+
+        t.innerHTML = `
+            <div>
+                <h1>Peliculas</h1>
+                <input placeholder="id pelicula"/> <button>buscar!</button>
+                <div id="nombre"></div><br/>
+                <div id="peso" ></div><br/>
+                <div id="altura"></div><br/>    
+            </div>
+            <style>
+                h1{
+                    color:red;
+                    text-shadow: 2px 2px #000000; 
+                }    
+            </style>
+        `;
+
+        class NeoTag extends HTMLElement {
+
+
+
+
+            constructor() {
+                super();
+                console.log('tag inicializado');
+                console.log('==== constructor ====');
+                this._shadowRoot = this.attachShadow({ 'mode': 'open' });
+                this._shadowRoot.appendChild(t.content.cloneNode(true));
+            }
+
+            static get observedAttributes() {
+                return ['id','name']
+            }
+
+            connectedCallback() {
+                //
+                console.log('tag conectado');
+                console.log('==== connectedCallback ====');
+                this.nombre = this._shadowRoot.querySelector('#nombre');
+                this.peso = this._shadowRoot.querySelector('#peso');
+                this.altura = this._shadowRoot.querySelector('#altura');
+                this.input = this._shadowRoot.querySelector('input');
+                this.b = this._shadowRoot.querySelector('button');
+            
+
+                this.b.addEventListener('click', () => {
+
+                    
+                    fetch('https://swapi.dev/api/people/' + this.input.value + '/')
+                        .then(resp => resp.json())
+                        .then(data => {
+
+                            this.nombre.innerHTML = data.name;
+                            this.peso.innerHTML = data.mass;
+                            this.altura.innerHTML = data.height;
+
+                        });
+                })
+
+
+                // invoco a un API REST por medio de fetch 
+
+
+                // invocamos al api de una forma segura
+
+            }
+
+            disconnectedCallback() {
+                console.log('desconecto el componente')
+                console.log('=== disconnectedCallback() ===');
+
+                // save object ble 
+                if (confirm('esta seguro que quiere cerrar la pantall?')) {
+                    window.close();
+                } else {
+                    console.log('el elemento fue borrado debe recargar la pagina');
+                }
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+
+                console.log(name + " " + oldValue + " " + newValue);
+
+                //toda la logica que quiero para las modificaciones de los atributos 
+                fetch('https://swapi.dev/api/people/' + this.getAttribute('id') + '/')
+                    .then(resp => resp.json())
+                    .then(data => {
+
+                        this.nombre.innerHTML = data.name;
+                        this.peso.innerHTML = data.mass;
+                        this.altura.innerHTML = data.height;
+
+
+                    });
+
+            }
+
+
+        }
+
+        window.customElements.define('neo-personaje', NeoTag);
+
+    </script>
+
+</body>
+
+</html>
