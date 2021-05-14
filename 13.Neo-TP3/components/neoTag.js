@@ -2,14 +2,16 @@ class neoTag extends HTMLElement{
     constructor(){
         super();
         this._shadowRoot=this.attachShadow({mode:'open'});
+        this._shadowRoot.appendChild(this.getTemplate().content.cloneNode(true));
     }
     static get observedAttributes(){
         return [];
     };
     connectedCallback(){
-        this.render();
-        
-        
+        this.bgClass=this._shadowRoot.querySelector('article');
+        setInterval(() => {
+            this.bgClass.style=`background-image:url(${this.randomImage()})`;
+        }, 2000);
     }
     disconnectedCallback(){
         if (confirm('esta seguro que quiere cerrar la pantall?')) {
@@ -18,17 +20,25 @@ class neoTag extends HTMLElement{
             console.log('el elemento fue borrado debe recargar la pagina');
         }
     }
-    //----------------------------------------------------------->
-    //----------------------------------------------------------->
+    randomImage(){
+        const array = [
+            "./img/image1.jpg",
+            "./img/image2.jpg",
+            "./img/image3.jpg"
+        ];
+        return array[Math.floor(Math.random()*(3-0))+0];
+    }
+    //---------------------------------------------------->
+    //TEMPLATE & STYLES
+    //---------------------------------------------------->
     getTemplate(){
         const template = document.createElement('template');
         template.innerHTML=
         `
-            <div class="background"></div>
+            <article id="background"></article>
             <div class="wrapper">
                 <div id="header">
                     <h2>RICK & MORTY<span>Character Getter<span></h2>
-                    
                 </div>
                 <neo-card></neo-card>
             </div>
@@ -36,21 +46,20 @@ class neoTag extends HTMLElement{
         `;
         return template;
     }
-    render(){
-        this._shadowRoot.appendChild(this.getTemplate().content.cloneNode(true));
-    }
+
     getStyle(){
         return `
         <style>
             
-            .background{
+            #background{
                 position: absolute;
                 width:100%;
                 height:100%;
                 background-image: url(${this.randomImage()});
                 background-size:cover;
                 background-position: center center;
-                filter:blur(0.8px)
+                filter:blur(0.8px);
+                transition:all .5s ease-in-out;
             }
             .wrapper{
                 position: relative;
@@ -83,14 +92,5 @@ class neoTag extends HTMLElement{
         </style>
         `
     }
-    randomImage(){
-        const array = [
-            "./img/image1.jpg",
-            "./img/image2.jpg",
-            "./img/image3.jpg"
-        ];
-        return array[Math.floor(Math.random()*(3-0))+0];
-    }
-
 }
 customElements.define("neo-tag",neoTag)
